@@ -80,6 +80,7 @@ class Storage_ZendDb implements IStorage {
             JOIN `{$this->_prefix}users_roles` AS ur
                 ON (r.roleId = ur.roleId)
             WHERE ur.userId = $userId AND ur.contextId = $contextId
+            ORDER BY r.sortOrder
         ");
     }
 
@@ -99,6 +100,7 @@ class Storage_ZendDb implements IStorage {
                     ON (uc.capabilityId = c.capabilityId)
                 WHERE uc.contextId = $contextId
                   AND uc.userId = $userId
+                ORDER BY c.sortOrder
             UNION
                 SELECT c.capabilityId, c.key
                 FROM `{$this->_prefix}users_roles` AS ur
@@ -108,6 +110,7 @@ class Storage_ZendDb implements IStorage {
                     ON (rc.capabilityId = c.capabilityId)
                 WHERE ur.contextId = $contextId
                   AND ur.userId = $userId
+                ORDER BY c.sortOrder
         ");
     }
 
