@@ -53,5 +53,15 @@ class Core_Editor {
     {
         return $this->_storage->getEditor()->createCapability($key, $isSuitableForRole, $sortOrder);
     }
+
+    public function addCapabilityToRole($capabilityId, $roleId)
+    {
+        return $this->_storage->getEditor()->addCapability($roleId, $capabilityId);
+    }
+
+    public function removeCapabilityFromRole($capabilityId, $roleId)
+    {
+        return $this->_storage->getEditor()->removeCapability($roleId, $capabilityId);
+    }
 }
 
