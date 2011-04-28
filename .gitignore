@@ -1,3 +1,3 @@
-tests/setup-environment.php
-!tests/setup-environment.php-dist
+tests/test-resources.php
+!tests/test-resources.php-dist
 .DS_Store
