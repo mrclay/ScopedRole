@@ -20,7 +20,6 @@ if ($userContext->hasCapability('can edit forum')) { // a quick in_array check
     // allow user to edit forum
 }
 
-
 // heavier API reserved for when you need to make edits
 // not really happy with this API, but it works
 $editor = $core->getEditor();

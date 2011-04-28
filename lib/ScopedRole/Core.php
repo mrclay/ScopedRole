@@ -41,21 +41,6 @@ class Core {
     }
 
     /**
-     * @param string $table
-     * @return string
-     */
-    public static function getPrimaryKey($table)
-    {
-        switch ($table) {
-            case 'roles':        return 'roleId';
-            case 'capabilities': return 'capabilityId';
-            case 'contexts':     return 'contextId';
-            case 'contextTypes': return 'contextTypeId';
-            default:             return 'id';
-        }
-    }
-
-    /**
      * @var IStorage
      */
     protected $_storage;

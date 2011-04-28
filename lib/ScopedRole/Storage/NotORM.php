@@ -2,33 +2,22 @@
 
 namespace ScopedRole;
 
-class Storage_ZendDb implements IStorage {
+class Storage_NotORM implements IStorage {
 
     /**
-     * @param \Zend_Db_Adapter_Abstract $db
+     * @param \PDO $pdo
      * @param string $prefix
      */
-    public function __construct(\Zend_Db_Adapter_Abstract $db, $prefix = 'scrl_')
+    public function __construct(\PDO $pdo, $prefix = 'scrl_')
     {
-        $this->_db = $db;
         $this->_prefix = $prefix;
-    }
-
-    /**
-     * @param string $name
-     * @return \Zend_Db_Table
-     */
-    public function getTable($name)
-    {
-        static $tables = array();
-        if (! isset($tables[$name])) {
-            $tables[$name] = new \Zend_Db_Table(array(
-                'name' => $name,
-                'primary' => 'id',
-                'db' => $this->_db,
-            ));
-        }
-        return $tables[$name];
+        $this->_pdo = $pdo;
+        $structure = new NotORM_Structure_Convention(
+            $primary = "id", // id
+            $foreign = "id_%s", // e.g. id_role
+            $table = "$prefix%s" // e.g. scrl_role
+        );
+        $this->_orm = new NotORM($pdo, $structure);
     }
 
     /**
@@ -38,28 +27,18 @@ class Storage_ZendDb implements IStorage {
      */
     public function fetchId($table, $key)
     {
-        return $this->_db->fetchOne("
-            SELECT id FROM `{$this->_prefix}$table`
-            WHERE key = ?
-        ", array($key));
+        $row = $this->_orm->{$table}("key = ?", $key);
+        return $row['id'];
     }
 
     /**
-     * @return \Zend_Db_Adapter_Abstract
-     */
-    public function getDb()
-    {
-        return $this->_db;
-    }
-
-    /**
-     * @return Storage_ZendDb_Editor
+     * @return Storage_NotORM_Editor
      */
     public function getEditor()
     {
         static $editor = null;
         if ($editor === null) {
-            $editor = new Storage_ZendDb_Editor($this);
+            $editor = new Storage_NotORM_Editor($this);
         }
         return $editor;
     }
@@ -73,14 +52,15 @@ class Storage_ZendDb implements IStorage {
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
-        return $this->_db->fetchAssoc("
+        $sql = "
             SELECT r.id, r.key
             FROM `{$this->_prefix}role` AS r
             JOIN `{$this->_prefix}user_role` AS ur
                 ON (r.id = ur.id_role)
             WHERE ur.id_user = $userId AND ur.id_context = $contextId
             ORDER BY r.sortOrder
-        ");
+        ";
+        return $this->_pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -92,7 +72,7 @@ class Storage_ZendDb implements IStorage {
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
-        return $this->_db->fetchAssoc("
+        $sql = "
                 SELECT c.id, c.key
                 FROM `{$this->_prefix}user_capability` AS uc
                 JOIN `{$this->_prefix}capability` AS c
@@ -110,7 +90,8 @@ class Storage_ZendDb implements IStorage {
                 WHERE ur.id_context = $contextId
                   AND ur.id_user = $userId
                 ORDER BY c.sortOrder
-        ");
+        ";
+        return $this->_pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -127,7 +108,7 @@ class Storage_ZendDb implements IStorage {
         }
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
-        $matchingRows = $this->_db->fetchAll("
+        $sql = "
                 SELECT 1
                 FROM `{$this->_prefix}user_capability` AS uc
                 WHERE uc.id_capability = $capabilityId
@@ -141,10 +122,9 @@ class Storage_ZendDb implements IStorage {
                 WHERE rc.id_capability = $capabilityId
                   AND ur.id_context = $contextId
                   AND ur.id_user = $userId
-        ");
-        return count($matchingRows) > 0;
+        ";
+        return $this->_pdo->query($sql)->rowCount() > 0;
     }
-
 
     /**
      * @var string
@@ -152,7 +132,37 @@ class Storage_ZendDb implements IStorage {
     protected $_prefix;
 
     /**
-     * @var \Zend_Db_Adapter_Abstract
+     * @return string
      */
-    protected $_db;
+    public function getPrefix()
+    {
+        return $this->_prefix;
+    }
+
+    /**
+     * @var \NotORM
+     */
+    protected $_orm;
+
+    /**
+     * @return \NotORM
+     */
+    public function getOrm()
+    {
+        return $this->_orm;
+    }
+
+    /**
+     * @var \PDO
+     */
+    protected $_pdo;
+
+    /**
+     * @return \PDO
+     */
+    public function getPdo()
+    {
+        return $this->_pdo;
+    }
+
 }
