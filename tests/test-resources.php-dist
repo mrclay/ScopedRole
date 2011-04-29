@@ -1,12 +1,36 @@
 <?php
 
 function scrl_setup_autoloading() {
-    /* setup autoloading here */
+    /* setup autoloading for NotORM/Zend here */
+    
+    require __DIR__ . '/../lib/ScopedRole/Loader.php';
+    ScopedRole\Loader::register();
 }
 
 /**
  * @return \PDO
  */
 function scrl_get_PDO() {
-    return new PDO("mysql:host=127.0.0.1;dbname=scrl", "user_scrl", "mypassword");
+    $pdo = new PDO("mysql:host=127.0.0.1;dbname=scrl", "user_scrl", "mypassword");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+    return $pdo;
+}
+
+/**
+ * pTest - PHP Unit Tester
+ * @param mixed $test Condition to test, evaluated as boolean
+ * @param string $message Descriptive message to output upon test
+ * @url http://www.sitepoint.com/blogs/2007/08/13/ptest-php-unit-tester-in-9-lines-of-code/
+ */
+function assertTrue($test, $message)
+{
+    static $count;
+    if (!isset($count)) $count = array('pass'=>0, 'fail'=>0, 'total'=>0);
+
+    $mode = $test ? 'pass' : 'fail';
+    $outMode = $test ? 'PASS' : '!FAIL';
+    printf("%s: %s (%d of %d tests run so far have %sed)\n",
+            $outMode, $message, ++$count[$mode], ++$count['total'], $mode);
+
+    return (bool)$test;
 }
