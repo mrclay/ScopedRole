@@ -12,12 +12,18 @@ class Storage_NotORM implements IStorage {
     {
         $this->_prefix = $prefix;
         $this->_pdo = $pdo;
-        $structure = new NotORM_Structure_Convention(
+
+        // because NotORM doesn't follow the 1-file-per-class convention,
+        // we have to make sure the NotORM class gets loaded first. Otherwise,
+        // NotORM_Structure_Convention will fail loading
+        $exists = class_exists('NotORM', true);
+
+        $structure = new \NotORM_Structure_Convention(
             $primary = "id", // id
             $foreign = "id_%s", // e.g. id_role
-            $table = "$prefix%s" // e.g. scrl_role
+            $table = "%s" // e.g. scrl_role
         );
-        $this->_orm = new NotORM($pdo, $structure);
+        $this->_orm = new \NotORM($pdo, $structure);
     }
 
     /**
@@ -27,8 +33,10 @@ class Storage_NotORM implements IStorage {
      */
     public function fetchId($table, $key)
     {
-        $row = $this->_orm->{$table}("key = ?", $key);
-        return $row['id'];
+        $table = $this->_prefix . $table;
+        $row = $this->_orm->{$table}()->where("key", $key);
+        echo $row;
+        return ($row) ? $row['id'] : false;
     }
 
     /**
@@ -103,7 +111,7 @@ class Storage_NotORM implements IStorage {
     public function hasCapability($contextId, $userId, $capabilityKey)
     {
         $capabilityId = $this->fetchId('capability', $capabilityKey);
-        if ($capabilityId === false) {
+        if (! $capabilityId) {
             return false;
         }
         $userId    = (int)$userId;
@@ -123,6 +131,7 @@ class Storage_NotORM implements IStorage {
                   AND ur.id_context = $contextId
                   AND ur.id_user = $userId
         ";
+        echo $sql;
         return $this->_pdo->query($sql)->rowCount() > 0;
     }
 

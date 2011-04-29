@@ -16,8 +16,10 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      * @param string $key
      * @return int
      */
-    public function createContextType($key) {
-        $row = $this->_orm->contextType()->insert(array(
+    public function createContextType($key)
+    {
+        $table = $this->_prefix . 'contextType';
+        $row = $this->_orm->{$table}()->insert(array(
             'key' => $key
         ));
         return $row['id'];
@@ -30,7 +32,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function createContext($key, $contextTypeId)
     {
-        $row = $this->_orm->context()->insert(array(
+        $table = $this->_prefix . 'context';
+        $row = $this->_orm->{$table}()->insert(array(
             'key' => $key,
             'id_contextType' => $contextTypeId,
         ));
@@ -44,7 +47,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function createRole($key, $sortOrder)
     {
-        $row = $this->_orm->role()->insert(array(
+        $table = $this->_prefix . 'role';
+        $row = $this->_orm->{$table}()->insert(array(
             'key' => $key,
             'sortOrder' => $sortOrder,
         ));
@@ -59,7 +63,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function createCapability($key, $isSuitableForRole, $sortOrder)
     {
-        $row = $this->_orm->capability()->insert(array(
+        $table = $this->_prefix . 'capability';
+        $row = $this->_orm->{$table}()->insert(array(
             'key' => $key,
             'isSuitableForRole' => $isSuitableForRole,
             'sortOrder' => $sortOrder,
@@ -74,7 +79,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function addCapability($roleId, $capabilityId)
     {
-        $row = $this->_orm->role_capability()->insert(array(
+        $table = $this->_prefix . 'role_capability';
+        $row = $this->_orm->{$table}()->insert(array(
             'id_role' => $roleId,
             'id_capability' => $capabilityId,
         ));
@@ -88,7 +94,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function removeCapability($roleId, $capabilityId)
     {
-        $row = $this->_orm->role_capability()
+        $table = $this->_prefix . 'role_capability';
+        $row = $this->_orm->{$table}()
                           ->where(array(
                               'id_role' => $roleId,
                               'id_capability' => $capabilityId,
@@ -110,7 +117,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function grantRole($roleId, $userId, $contextId)
     {
-        $row = $this->_orm->user_role()->insert(array(
+        $table = $this->_prefix . 'user_role';
+        $row = $this->_orm->{$table}()->insert(array(
             'id_role' => $roleId,
             'id_user' => $userId,
             'id_context' => $contextId,
@@ -126,7 +134,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function revokeRole($roleId, $userId, $contextId)
     {
-        $row = $this->_orm->user_role()
+        $table = $this->_prefix . 'user_role';
+        $row = $this->_orm->{$table}()
                           ->where(array(
                               'id_role' => $roleId,
                               'id_user' => $userId,
@@ -148,7 +157,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function grantCapability($capabilityId, $userId, $contextId)
     {
-        $row = $this->_orm->user_capability()->insert(array(
+        $table = $this->_prefix . 'user_capability';
+        $row = $this->_orm->{$table}()->insert(array(
             'id_capability' => $capabilityId,
             'id_user' => $userId,
             'id_context' => $contextId,
@@ -164,7 +174,8 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      */
     public function revokeCapability($capabilityId, $userId, $contextId)
     {
-        $row = $this->_orm->user_capability()->where(array(
+        $table = $this->_prefix . 'user_capability';
+        $row = $this->_orm->{$table}()->where(array(
             'id_capability' => $capabilityId,
             'id_user' => $userId,
             'id_context' => $contextId,

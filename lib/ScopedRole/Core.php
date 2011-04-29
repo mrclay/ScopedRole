@@ -25,7 +25,7 @@ class Core {
      */
     public function hasCapability($contextKey, $userId, $capabilityKey)
     {
-        $contextId = $this->_storage->fetchId('contexts', $contextKey);
+        $contextId = $this->_storage->fetchId('context', $contextKey);
         if ($contextId === false) {
             return false;
         }
