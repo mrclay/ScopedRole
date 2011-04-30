@@ -12,7 +12,7 @@ $core = new Core($storage);
 
 // most requests use light API for queries
 // e.g. you know context key and userId
-$contextId = $storage->fetchId('contexts', $contextKey);
+$contextId = $storage->fetchId('contexts', $contextTitle);
 // this UserContext obj pre-fetches roles/capabilities (and in future versions will
 // use a KV cache to speed this up)
 $userContext = new ScopedRole\UserContext($core, $contextId, $userId);

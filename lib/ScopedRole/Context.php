@@ -22,12 +22,12 @@ class Context {
 
     /**
      * @param int $userId
-     * @param string $capabilityKey
+     * @param string $capability
      * @return bool
      */
-    public function hasCapability($userId, $capabilityKey)
+    public function hasCapability($userId, $capability)
     {
-        return $this->_storage->hasCapability($this->_id, $userId, $capabilityKey);
+        return $this->_storage->hasCapability($this->_id, $userId, $capability);
     }
 
     /**
@@ -70,11 +70,19 @@ class Context {
         return $this->_storage->getEditor()->revokeCapability($capabilityId, $userId, $this->_id);
     }
 
+    /**
+     * @param int $userId
+     * @return array
+     */
     public function fetchRoles($userId)
     {
         return $this->_storage->fetchRoles($this->_id, $userId);
     }
 
+    /**
+     * @param int $userId
+     * @return array
+     */
     public function fetchCapabilities($userId)
     {
         return $this->_storage->fetchCapabilities($this->_id, $userId);

@@ -33,15 +33,15 @@ class Storage_ZendDb implements IStorage {
 
     /**
      * @param string $table
-     * @param string $key
+     * @param string $title
      * @return int|false
      */
-    public function fetchId($table, $key)
+    public function fetchId($table, $title)
     {
         return $this->_db->fetchOne("
             SELECT id FROM `{$this->_prefix}$table`
-            WHERE key = ?
-        ", array($key));
+            WHERE title = ?
+        ", array($title));
     }
 
     /**
@@ -74,7 +74,7 @@ class Storage_ZendDb implements IStorage {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
         return $this->_db->fetchAssoc("
-            SELECT r.id, r.key
+            SELECT r.id, r.title
             FROM `{$this->_prefix}role` AS r
             JOIN `{$this->_prefix}user_role` AS ur
                 ON (r.id = ur.id_role)
@@ -93,7 +93,7 @@ class Storage_ZendDb implements IStorage {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
         return $this->_db->fetchAssoc("
-                SELECT c.id, c.key
+                SELECT c.id, c.title
                 FROM `{$this->_prefix}user_capability` AS uc
                 JOIN `{$this->_prefix}capability` AS c
                     ON (uc.id_capability = c.id)
@@ -101,7 +101,7 @@ class Storage_ZendDb implements IStorage {
                   AND uc.id_user = $userId
                 ORDER BY c.sortOrder
             UNION
-                SELECT c.id, c.key
+                SELECT c.id, c.title
                 FROM `{$this->_prefix}user_role` AS ur
                 JOIN `{$this->_prefix}role_capability` AS rc
                     ON (ur.id_role = rc.id_role)
@@ -116,12 +116,12 @@ class Storage_ZendDb implements IStorage {
     /**
      * @param int $contextId
      * @param int $userId
-     * @param string $capabilityKey
+     * @param string $capability
      * @return bool
      */
-    public function hasCapability($contextId, $userId, $capabilityKey)
+    public function hasCapability($contextId, $userId, $capability)
     {
-        $capabilityId = $this->fetchId('capability', $capabilityKey);
+        $capabilityId = $this->fetchId('capability', $capability);
         if ($capabilityId === false) {
             return false;
         }

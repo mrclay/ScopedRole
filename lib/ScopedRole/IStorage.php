@@ -12,18 +12,18 @@ interface IStorage {
     /**
      * Fetch the id of the primary key in a table
      * @param string $table
-     * @param string $key
+     * @param string $title
      * @return int|false
      */
-    public function fetchId($table, $key);
+    public function fetchId($table, $title);
     
     /**
      * @param int $contextId
      * @param int $userId
-     * @param string $capabilityKey
+     * @param string $capability
      * @return bool
      */
-    public function hasCapability($contextId, $userId, $capabilityKey);
+    public function hasCapability($contextId, $userId, $capability);
 
     /**
      * @param int $contextId

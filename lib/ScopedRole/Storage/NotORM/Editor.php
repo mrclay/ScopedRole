@@ -13,59 +13,60 @@ class Storage_NotORM_Editor implements Storage_IEditor {
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @return int
      */
-    public function createContextType($key)
+    public function createContextType($title)
     {
         $table = $this->_prefix . 'contextType';
         $row = $this->_orm->{$table}()->insert(array(
-            'key' => $key
+            'title' => $title
         ));
         return $row['id'];
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param int $typeId
      * @return int
      */
-    public function createContext($key, $contextTypeId)
+    public function createContext($title, $contextTypeId = null)
     {
         $table = $this->_prefix . 'context';
-        $row = $this->_orm->{$table}()->insert(array(
-            'key' => $key,
-            'id_contextType' => $contextTypeId,
-        ));
+        $data['title'] = $title;
+        if ($contextTypeId) {
+            $data['id_contextType'] = $contextTypeId;
+        }
+        $row = $this->_orm->{$table}()->insert($data);
         return $row['id'];
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param int $sortOrder
      * @return int
      */
-    public function createRole($key, $sortOrder)
+    public function createRole($title, $sortOrder)
     {
         $table = $this->_prefix . 'role';
         $row = $this->_orm->{$table}()->insert(array(
-            'key' => $key,
+            'title' => $title,
             'sortOrder' => $sortOrder,
         ));
         return $row['id'];
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param bool $isSuitableForRole
      * @param int $sortOrder
      * @return int
      */
-    public function createCapability($key, $isSuitableForRole, $sortOrder)
+    public function createCapability($title, $isSuitableForRole, $sortOrder)
     {
         $table = $this->_prefix . 'capability';
         $row = $this->_orm->{$table}()->insert(array(
-            'key' => $key,
+            'title' => $title,
             'isSuitableForRole' => $isSuitableForRole,
             'sortOrder' => $sortOrder,
         ));

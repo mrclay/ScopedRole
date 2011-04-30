@@ -18,7 +18,7 @@ CREATE TABLE `scrl_user_role` (
 
 CREATE TABLE `scrl_capability` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `key`          VARCHAR(150) NOT NULL,
+  `title`          VARCHAR(150) NOT NULL,
   `sortOrder`    BIGINT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -27,7 +27,7 @@ CREATE TABLE `scrl_capability` (
 CREATE TABLE `scrl_context` (
   `id`     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `id_contextType` BIGINT UNSIGNED,
-  `key`           VARCHAR(150) NOT NULL
+  `title`           VARCHAR(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /* separator */
@@ -43,7 +43,7 @@ CREATE TABLE `scrl_user_capability` (
 
 CREATE TABLE `scrl_role` (
   `id`    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `key`       VARCHAR(150) NOT NULL,
+  `title`       VARCHAR(150) NOT NULL,
   `sortOrder` BIGINT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -51,5 +51,5 @@ CREATE TABLE `scrl_role` (
 
 CREATE TABLE `scrl_contextType` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `key`           VARCHAR(150) NOT NULL
+  `title`           VARCHAR(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

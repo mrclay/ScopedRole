@@ -15,43 +15,43 @@ class Core_Editor {
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @return int
      */
-    public function createContextType($key)
+    public function createContextType($title)
     {
-        return $this->_storage->getEditor()->createContextType($key);
+        return $this->_storage->getEditor()->createContextType($title);
     }
 
     /**
-     * @param string $key
-     * @param int $typeId
+     * @param string $title
+     * @param int $contextTypeId
      * @return int
      */
-    public function createContext($key, $contextTypeId)
+    public function createContext($title, $contextTypeId = null)
     {
-        return $this->_storage->getEditor()->createContext($key, $contextTypeId);
+        return $this->_storage->getEditor()->createContext($title, $contextTypeId);
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param int $sortOrder
      * @return int
      */
-    public function createRole($key, $sortOrder = null)
+    public function createRole($title, $sortOrder = null)
     {
-        return $this->_storage->getEditor()->createRole($key, $sortOrder);
+        return $this->_storage->getEditor()->createRole($title, $sortOrder);
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param bool $isSuitableForRole
      * @param int $sortOrder
      * @return int
      */
-    public function createCapability($key, $isSuitableForRole = true, $sortOrder = null)
+    public function createCapability($title, $isSuitableForRole = true, $sortOrder = null)
     {
-        return $this->_storage->getEditor()->createCapability($key, $isSuitableForRole, $sortOrder);
+        return $this->_storage->getEditor()->createCapability($title, $isSuitableForRole, $sortOrder);
     }
 
     public function addCapabilityToRole($capabilityId, $roleId)

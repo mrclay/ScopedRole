@@ -11,72 +11,73 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @return int
      */
-    public function createContextType($key) {
+    public function createContextType($title) {
         $table = $this->_storage->getTable('contextType');
-        $row = $table->fetchRow($this->_db->quoteInto('key = ?', $key));
+        $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
         if ($row) {
-            throw new Exception('Context type already exists with key "' . $key . '".');
+            throw new Exception('Context type already exists with title "' . $title . '".');
         }
-        $row = $table->createRow(array('key' => $key));
+        $row = $table->createRow(array('title' => $title));
         return $row->contextTypeId;
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param int $typeId
      * @return int
      */
-    public function createContext($key, $contextTypeId)
+    public function createContext($title, $contextTypeId = null)
     {
         $table = $this->_storage->getTable('context');
-        $row = $table->fetchRow($this->_db->quoteInto('key = ?', $key));
+        $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
         if ($row) {
-            throw new Exception('Context already exists with key "' . $key . '".');
+            throw new Exception('Context already exists with title "' . $title . '".');
         }
-        $row = $table->createRow(array(
-            'key' => $key,
-            'id' => $contextTypeId
-        ));
+        $data['title'] = $title;
+        if ($contextTypeId) {
+            $data['id_contextType'] = $contextTypeId;
+        }
+        $row = $table->createRow($data);
         return $row->contextId;
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param int $sortOrder
      * @return int
      */
-    public function createRole($key, $sortOrder)
+    public function createRole($title, $sortOrder)
     {
         $table = $this->_storage->getTable('role');
-        $row = $table->fetchRow($this->_db->quoteInto('key = ?', $key));
+        $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
         if ($row) {
-            throw new Exception('Role already exists with key "' . $key . '".');
+            throw new Exception('Role already exists with title "' . $title . '".');
         }
         $row = $table->createRow(array(
-            'key' => $key,
+            'title' => $title,
             'sortOrder' => $sortOrder
         ));
         return $row->roleId;
     }
 
     /**
-     * @param string $key
+     * @param string $title
      * @param bool $isSuitableForRole
      * @param int $sortOrder
      * @return int
      */
-    public function createCapability($key, $isSuitableForRole, $sortOrder)
+    public function createCapability($title, $isSuitableForRole, $sortOrder)
     {
         $table = $this->_storage->getTable('capability');
-        $row = $table->fetchRow($this->_db->quoteInto('key = ?', $key));
+        $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
         if ($row) {
-            throw new Exception('Capability already exists with key "' . $key . '".');
+            throw new Exception('Capability already exists with title "' . $title . '".');
         }
         $row = $table->createRow(array(
-            'key' => $key,
+            'title' => $title,
             'isSuitableForRole' => $isSuitableForRole,
             'sortOrder' => $sortOrder,
         ));

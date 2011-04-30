@@ -4,32 +4,32 @@ namespace ScopedRole;
 
 interface Storage_IEditor {
     /**
-     * @param string $key
+     * @param string $title
      * @return int
      */
-    public function createContextType($key);
+    public function createContextType($title);
 
     /**
-     * @param string $key
+     * @param string $title
      * @param int $typeId
      * @return int
      */
-    public function createContext($key, $contextTypeId);
+    public function createContext($title, $contextTypeId);
 
     /**
-     * @param string $key
+     * @param string $title
      * @param int $sortOrder
      * @return int
      */
-    public function createRole($key, $sortOrder);
+    public function createRole($title, $sortOrder);
 
     /**
-     * @param string $key
+     * @param string $title
      * @param bool $isSuitableForRole
      * @param int $sortOrder
      * @return int
      */
-    public function createCapability($key, $isSuitableForRole, $sortOrder);
+    public function createCapability($title, $isSuitableForRole, $sortOrder);
 
     /**
      * @param int $roleId

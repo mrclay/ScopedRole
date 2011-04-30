@@ -18,18 +18,18 @@ class Core {
     }
 
     /**
-     * @param string $contextKey
+     * @param string $context
      * @param int $userId
-     * @param string $capabilityKey
+     * @param string $capability
      * @return bool
      */
-    public function hasCapability($contextKey, $userId, $capabilityKey)
+    public function hasCapability($context, $userId, $capability)
     {
-        $contextId = $this->_storage->fetchId('context', $contextKey);
+        $contextId = $this->_storage->fetchId('context', $context);
         if ($contextId === false) {
             return false;
         }
-        return $this->_storage->hasCapability($contextId, $userId, $capabilityKey);
+        return $this->_storage->hasCapability($contextId, $userId, $capability);
     }
 
     /**

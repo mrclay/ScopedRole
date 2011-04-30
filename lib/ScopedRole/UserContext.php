@@ -23,13 +23,13 @@ class UserContext {
         $this->_capabilities = $this->_storage->fetchCapabilities($contextId, $userId);
     }
 
-    public function hasCapability($key)
+    public function hasCapability($title)
     {
-        return in_array($key, array_values($this->_capabilities));
+        return in_array($title, array_values($this->_capabilities));
     }
 
-    public function hasRole($key)
+    public function hasRole($title)
     {
-        return in_array($key, array_values($this->_roles));
+        return in_array($title, array_values($this->_roles));
     }
 }

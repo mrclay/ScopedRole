@@ -28,13 +28,13 @@ class Storage_NotORM implements IStorage {
 
     /**
      * @param string $table
-     * @param string $key
+     * @param string $title
      * @return int|false
      */
-    public function fetchId($table, $key)
+    public function fetchId($table, $title)
     {
         $table = $this->_prefix . $table;
-        $row = $this->_orm->{$table}()->where("key", $key);
+        $row = $this->_orm->{$table}()->where("title", $title)->fetch();
         echo $row;
         return ($row) ? $row['id'] : false;
     }
@@ -61,7 +61,7 @@ class Storage_NotORM implements IStorage {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
         $sql = "
-            SELECT r.id, r.key
+            SELECT r.id, r.title
             FROM `{$this->_prefix}role` AS r
             JOIN `{$this->_prefix}user_role` AS ur
                 ON (r.id = ur.id_role)
@@ -81,7 +81,7 @@ class Storage_NotORM implements IStorage {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
         $sql = "
-                SELECT c.id, c.key
+                SELECT c.id, c.title
                 FROM `{$this->_prefix}user_capability` AS uc
                 JOIN `{$this->_prefix}capability` AS c
                     ON (uc.id_capability = c.id)
@@ -89,7 +89,7 @@ class Storage_NotORM implements IStorage {
                   AND uc.id_user = $userId
                 ORDER BY c.sortOrder
             UNION
-                SELECT c.id, c.key
+                SELECT c.id, c.title
                 FROM `{$this->_prefix}user_role` AS ur
                 JOIN `{$this->_prefix}role_capability` AS rc
                     ON (ur.id_role = rc.id_role)
@@ -105,12 +105,12 @@ class Storage_NotORM implements IStorage {
     /**
      * @param int $contextId
      * @param int $userId
-     * @param string $capabilityKey
+     * @param string $capability
      * @return bool
      */
-    public function hasCapability($contextId, $userId, $capabilityKey)
+    public function hasCapability($contextId, $userId, $capability)
     {
-        $capabilityId = $this->fetchId('capability', $capabilityKey);
+        $capabilityId = $this->fetchId('capability', $capability);
         if (! $capabilityId) {
             return false;
         }
