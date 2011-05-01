@@ -19,6 +19,7 @@ CREATE TABLE `scrl_user_role` (
 CREATE TABLE `scrl_capability` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `title`          VARCHAR(150) NOT NULL,
+  `isSuitableForRole` TINYINT(1) DEFAULT 1,
   `sortOrder`    BIGINT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
