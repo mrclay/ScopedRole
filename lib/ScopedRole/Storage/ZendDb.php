@@ -161,9 +161,14 @@ class Storage_ZendDb implements IStorage {
         return count($matchingRows) > 0;
     }
 
+    /**
+     * @param int $userId
+     * @param int $contextId
+     * @return VO_UserContext
+     */
     public function fetchUserContext($userId, $contextId = 1)
     {
-        return UserContext::make($this, $userId, $contextId);
+        return VO_UserContext::make($this, $userId, $contextId);
     }
 
     /**

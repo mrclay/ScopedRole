@@ -42,7 +42,7 @@ interface IStorage {
     /**
      * @param int $userId
      * @param int $contextId
-     * @return UserContext
+     * @return VO_UserContext
      */
     public function fetchUserContext($userId, $contextId = 1);
 }

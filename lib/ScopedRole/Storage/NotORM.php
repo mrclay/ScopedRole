@@ -149,9 +149,14 @@ class Storage_NotORM implements IStorage {
         return $this->_pdo->query($sql)->rowCount() > 0;
     }
 
+    /**
+     * @param int $userId
+     * @param int $contextId
+     * @return VO_UserContext
+     */
     public function fetchUserContext($userId, $contextId = 1)
     {
-        return UserContext::make($this, $userId, $contextId);
+        return VO_UserContext::make($this, $userId, $contextId);
     }
 
     /**

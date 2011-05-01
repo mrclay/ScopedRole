@@ -7,7 +7,7 @@ namespace ScopedRole;
  * and use isFresh()/getRefreshed() to make sure you rebuild it every so often (in case
  * the underlying DB changes)
  */
-class UserContext {
+class VO_UserContext {
 
     protected $_userId;
     protected $_contextId;
