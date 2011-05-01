@@ -1,3 +1,3 @@
-tests/test-resources.php
-!tests/test-resources.php-dist
+tests/test-config.php
+!tests/test-condig.php-dist
 .DS_Store
