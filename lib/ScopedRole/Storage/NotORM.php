@@ -35,7 +35,6 @@ class Storage_NotORM implements IStorage {
     {
         $table = $this->_prefix . $table;
         $row = $this->_orm->{$table}()->where("title", $title)->fetch();
-        echo $row;
         return ($row) ? $row['id'] : false;
     }
 
@@ -56,7 +55,7 @@ class Storage_NotORM implements IStorage {
      * @param int $userId
      * @return array
      */
-    public function fetchRoles($contextId, $userId)
+    public function fetchRoles($userId, $contextId = 1)
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
@@ -68,7 +67,12 @@ class Storage_NotORM implements IStorage {
             WHERE ur.id_user = $userId AND ur.id_context = $contextId
             ORDER BY r.sortOrder
         ";
-        return $this->_pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $data = $this->_pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $ret = array();
+        foreach ($data as $row) {
+            $ret[$row['id']] = $row['title'];
+        }
+        return $ret;
     }
 
     /**
@@ -76,30 +80,37 @@ class Storage_NotORM implements IStorage {
      * @param int $userId
      * @return array
      */
-    public function fetchCapabilities($contextId, $userId)
+    public function fetchCapabilities($userId, $contextId = 1)
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
         $sql = "
-                SELECT c.id, c.title
-                FROM `{$this->_prefix}user_capability` AS uc
-                JOIN `{$this->_prefix}capability` AS c
-                    ON (uc.id_capability = c.id)
-                WHERE uc.id_context = $contextId
-                  AND uc.id_user = $userId
-                ORDER BY c.sortOrder
-            UNION
-                SELECT c.id, c.title
-                FROM `{$this->_prefix}user_role` AS ur
-                JOIN `{$this->_prefix}role_capability` AS rc
-                    ON (ur.id_role = rc.id_role)
-                JOIN `{$this->_prefix}capability` AS c
-                    ON (rc.id_capability = c.id)
-                WHERE ur.id_context = $contextId
-                  AND ur.id_user = $userId
-                ORDER BY c.sortOrder
+            SELECT id, title
+            FROM (
+                    SELECT c.id, c.title, c.sortOrder
+                    FROM `{$this->_prefix}user_capability` AS uc
+                    JOIN `{$this->_prefix}capability` AS c
+                        ON (uc.id_capability = c.id)
+                    WHERE uc.id_context = $contextId
+                      AND uc.id_user = $userId
+                UNION
+                    SELECT c.id, c.title, c.sortOrder
+                    FROM `{$this->_prefix}user_role` AS ur
+                    JOIN `{$this->_prefix}role_capability` AS rc
+                        ON (ur.id_role = rc.id_role)
+                    JOIN `{$this->_prefix}capability` AS c
+                        ON (rc.id_capability = c.id)
+                    WHERE ur.id_context = $contextId
+                      AND ur.id_user = $userId
+            ) q1
+            ORDER BY sortOrder
         ";
-        return $this->_pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $data = $this->_pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $ret = array();
+        foreach ($data as $row) {
+            $ret[$row['id']] = $row['title'];
+        }
+        return $ret;
     }
 
     /**
@@ -108,7 +119,7 @@ class Storage_NotORM implements IStorage {
      * @param string $capability
      * @return bool
      */
-    public function hasCapability($contextId, $userId, $capability)
+    public function hasCapability($userId, $capability, $contextId = 1)
     {
         $capabilityId = $this->fetchId('capability', $capability);
         if (! $capabilityId) {
@@ -117,22 +128,30 @@ class Storage_NotORM implements IStorage {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
         $sql = "
-                SELECT 1
-                FROM `{$this->_prefix}user_capability` AS uc
-                WHERE uc.id_capability = $capabilityId
-                  AND uc.id_context = $contextId
-                  AND uc.id_user = $userId
-            UNION
-                SELECT 1
-                FROM `{$this->_prefix}user_role` AS ur
-                JOIN `{$this->_prefix}role_capability` AS rc
-                    ON (ur.id_role = rc.id_role)
-                WHERE rc.id_capability = $capabilityId
-                  AND ur.id_context = $contextId
-                  AND ur.id_user = $userId
+            SELECT 1
+            FROM `{$this->_prefix}user_role` AS ur
+            JOIN `{$this->_prefix}role_capability` AS rc
+                ON (ur.id_role = rc.id_role)
+            WHERE rc.id_capability = $capabilityId
+              AND ur.id_context = $contextId
+              AND ur.id_user = $userId
         ";
-        echo $sql;
+        if ($this->_pdo->query($sql)->rowCount() > 0) {
+            return true;
+        }
+        $sql = "
+            SELECT 1
+            FROM `{$this->_prefix}user_capability` AS uc
+            WHERE uc.id_capability = $capabilityId
+              AND uc.id_context = $contextId
+              AND uc.id_user = $userId
+        ";
         return $this->_pdo->query($sql)->rowCount() > 0;
+    }
+
+    public function fetchUserContext($userId, $contextId = 1)
+    {
+        return UserContext::make($this, $userId, $contextId);
     }
 
     /**

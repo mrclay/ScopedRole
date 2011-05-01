@@ -14,22 +14,23 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
      * @param string $title
      * @return int
      */
-    public function createContextType($title) {
+    public function createContextType($title = 'default') {
         $table = $this->_storage->getTable('contextType');
         $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
         if ($row) {
             throw new Exception('Context type already exists with title "' . $title . '".');
         }
         $row = $table->createRow(array('title' => $title));
-        return $row->contextTypeId;
+        $row->save();
+        return $row->id;
     }
 
     /**
      * @param string $title
      * @param int $typeId
-     * @return int
+     * @return Context
      */
-    public function createContext($title, $contextTypeId = null)
+    public function createContext($title = 'default', $contextTypeId = null)
     {
         $table = $this->_storage->getTable('context');
         $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
@@ -41,7 +42,8 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
             $data['id_contextType'] = $contextTypeId;
         }
         $row = $table->createRow($data);
-        return $row->contextId;
+        $row->save();
+        return new Context($this->_storage, $row->id);
     }
 
     /**
@@ -49,18 +51,20 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
      * @param int $sortOrder
      * @return int
      */
-    public function createRole($title, $sortOrder)
+    public function createRole($title, $sortOrder = null)
     {
         $table = $this->_storage->getTable('role');
         $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
         if ($row) {
             throw new Exception('Role already exists with title "' . $title . '".');
         }
-        $row = $table->createRow(array(
-            'title' => $title,
-            'sortOrder' => $sortOrder
-        ));
-        return $row->roleId;
+        $data['title'] = $title;
+        if ($sortOrder) {
+            $data['sortOrder'] = $sortOrder;
+        }
+        $row = $table->createRow($data);
+        $row->save();
+        return $row->id;
     }
 
     /**
@@ -69,19 +73,23 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
      * @param int $sortOrder
      * @return int
      */
-    public function createCapability($title, $isSuitableForRole, $sortOrder)
+    public function createCapability($title, $isSuitableForRole = true, $sortOrder = null)
     {
         $table = $this->_storage->getTable('capability');
         $row = $table->fetchRow($this->_db->quoteInto('title = ?', $title));
         if ($row) {
             throw new Exception('Capability already exists with title "' . $title . '".');
         }
-        $row = $table->createRow(array(
+        $data = array(
             'title' => $title,
             'isSuitableForRole' => $isSuitableForRole,
-            'sortOrder' => $sortOrder,
-        ));
-        return $row->capabilityId;
+        );
+        if ($sortOrder) {
+            $data['sortOrder'] = $sortOrder;
+        }
+        $row = $table->createRow($data);
+        $row->save();
+        return $row->id;
     }
 
     /**
@@ -94,12 +102,14 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
         $table = $this->_storage->getTable('role_capability');
         $roleId       = (int)$roleId;
         $capabilityId = (int)$capabilityId;
-        $row = $table->fetchRow("WHERE id_role = $roleId AND id_capability = $capabilityId");
+        $select = $table->select()->where("id_role = $roleId AND id_capability = $capabilityId");
+        $row = $table->fetchRow($select);
         if (! $row) {
             $row = $table->createRow(array(
                 'id_role' => $roleId,
                 'id_capability' => $capabilityId,
             ));
+            $row->save();
         }
         return $row->id;
     }
@@ -114,7 +124,8 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
         $table = $this->_storage->getTable('role_capability');
         $roleId       = (int)$roleId;
         $capabilityId = (int)$capabilityId;
-        $row = $table->fetchRow("WHERE id_role = $roleId AND id_capability = $capabilityId");
+        $select = $table->select()->where("id_role = $roleId AND id_capability = $capabilityId");
+        $row = $table->fetchRow($select);
         if ($row) {
             return (bool) $row->delete();
         }
@@ -134,13 +145,15 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
         $roleId    = (int)$roleId;
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
-        $row = $table->fetchRow("WHERE id_role = $roleId AND id_user = $userId AND id_context = $contextId");
+        $select = $table->select()->where("id_role = $roleId AND id_user = $userId AND id_context = $contextId");
+        $row = $table->fetchRow($select);
         if (! $row) {
             $row = $table->createRow(array(
                 'id_role' => $roleId,
                 'id_user' => $userId,
                 'id_context' => $contextId,
             ));
+            $row->save();
         }
         return $row->id;
     }
@@ -157,7 +170,8 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
         $roleId    = (int)$roleId;
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
-        $row = $table->fetchRow("WHERE id_role = $roleId AND id_user = $userId AND id_context = $contextId");
+        $select = $table->select()->where("id_role = $roleId AND id_user = $userId AND id_context = $contextId");
+        $row = $table->fetchRow($select);
         if ($row) {
             return (bool) $row->delete();
         }
@@ -176,13 +190,15 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
         $capabilityId = (int)$capabilityId;
         $userId       = (int)$userId;
         $contextId    = (int)$contextId;
-        $row = $table->fetchRow("WHERE id_capability = $capabilityId AND id_user = $userId AND id_context = $contextId");
+        $select = $table->select()->where("id_capability = $capabilityId AND id_user = $userId AND id_context = $contextId");
+        $row = $table->fetchRow($select);
         if (! $row) {
             $row = $table->createRow(array(
                 'id_capability' => $capabilityId,
                 'id_user' => $userId,
                 'id_context' => $contextId,
             ));
+            $row->save();
         }
         return $row->id;
     }
@@ -199,11 +215,26 @@ class Storage_ZendDb_Editor implements Storage_IEditor {
         $capabilityId = (int)$capabilityId;
         $userId       = (int)$userId;
         $contextId    = (int)$contextId;
-        $row = $table->fetchRow("WHERE id_capability = $capabilityId AND id_user = $userId AND id_context = $contextId");
+        $select = $table->select()->where("id_capability = $capabilityId AND id_user = $userId AND id_context = $contextId");
+        $row = $table->fetchRow($select);
         if ($row) {
             return (bool) $row->delete();
         }
         return false;
+    }
+
+    /**
+     * @param string $title
+     * @return Context|null
+     */
+    public function getContextByTitle($title = 'default')
+    {
+        $table = $this->_storage->getTable('context');
+        $select = $table->select()->columns('id')->where('title = ?', $title);
+        $row = $table->fetchRow($select);
+        return ($row)
+            ? new Context($this->_storage, $row->id)
+            : null;
     }
 
     /**

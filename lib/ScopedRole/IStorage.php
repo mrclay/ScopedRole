@@ -23,19 +23,26 @@ interface IStorage {
      * @param string $capability
      * @return bool
      */
-    public function hasCapability($contextId, $userId, $capability);
+    public function hasCapability($userId, $capability, $contextId = 1);
 
     /**
      * @param int $contextId
      * @param int $userId
      * @return array
      */
-    public function fetchRoles($contextId, $userId);
+    public function fetchRoles($userId, $contextId = 1);
 
     /**
      * @param int $contextId
      * @param int $userId
      * @return array
      */
-    public function fetchCapabilities($contextId, $userId);
+    public function fetchCapabilities($userId, $contextId = 1);
+
+    /**
+     * @param int $userId
+     * @param int $contextId
+     * @return UserContext
+     */
+    public function fetchUserContext($userId, $contextId = 1);
 }

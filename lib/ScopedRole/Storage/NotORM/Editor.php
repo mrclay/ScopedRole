@@ -16,7 +16,7 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      * @param string $title
      * @return int
      */
-    public function createContextType($title)
+    public function createContextType($title = 'default')
     {
         $table = $this->_prefix . 'contextType';
         $row = $this->_orm->{$table}()->insert(array(
@@ -28,9 +28,9 @@ class Storage_NotORM_Editor implements Storage_IEditor {
     /**
      * @param string $title
      * @param int $typeId
-     * @return int
+     * @return Context
      */
-    public function createContext($title, $contextTypeId = null)
+    public function createContext($title = 'default', $contextTypeId = null)
     {
         $table = $this->_prefix . 'context';
         $data['title'] = $title;
@@ -38,7 +38,7 @@ class Storage_NotORM_Editor implements Storage_IEditor {
             $data['id_contextType'] = $contextTypeId;
         }
         $row = $this->_orm->{$table}()->insert($data);
-        return $row['id'];
+        return new Context($this->_storage, $row['id']);
     }
 
     /**
@@ -46,13 +46,14 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      * @param int $sortOrder
      * @return int
      */
-    public function createRole($title, $sortOrder)
+    public function createRole($title, $sortOrder = null)
     {
         $table = $this->_prefix . 'role';
-        $row = $this->_orm->{$table}()->insert(array(
-            'title' => $title,
-            'sortOrder' => $sortOrder,
-        ));
+        $data['title'] = $title;
+        if ($sortOrder) {
+            $data['sortOrder'] = $sortOrder;
+        }
+        $row = $this->_orm->{$table}()->insert($data);
         return $row['id'];
     }
 
@@ -62,14 +63,17 @@ class Storage_NotORM_Editor implements Storage_IEditor {
      * @param int $sortOrder
      * @return int
      */
-    public function createCapability($title, $isSuitableForRole, $sortOrder)
+    public function createCapability($title, $isSuitableForRole = true, $sortOrder = null)
     {
         $table = $this->_prefix . 'capability';
-        $row = $this->_orm->{$table}()->insert(array(
+        $data = array(
             'title' => $title,
             'isSuitableForRole' => $isSuitableForRole,
-            'sortOrder' => $sortOrder,
-        ));
+        );
+        if ($sortOrder) {
+            $data['sortOrder'] = $sortOrder;
+        }
+        $row = $this->_orm->{$table}()->insert($data);
         return $row['id'];
     }
 
@@ -186,6 +190,19 @@ class Storage_NotORM_Editor implements Storage_IEditor {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param string $title
+     * @return Context|null
+     */
+    public function getContextByTitle($title = 'default')
+    {
+        $table = $this->_prefix . 'context';
+        $row = $this->_orm->{$table}()->where('title', $title)->fetch();
+        return ($row)
+            ? new Context($this->_storage, $row['id'])
+            : null;
     }
 
     /**

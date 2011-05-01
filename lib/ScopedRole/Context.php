@@ -2,6 +2,9 @@
 
 namespace ScopedRole;
 
+/**
+ * Class for managing role/capability assignments within a context
+ */
 class Context {
 
     /**
@@ -14,10 +17,18 @@ class Context {
      */
     protected $_storage;
 
-    public function __construct(Core $core, $contextId)
+    public function __construct(IStorage $storage, $contextId = 1)
     {
-        $this->_storage = $core->getStorage();
+        $this->_storage = $storage;
         $this->_id = $contextId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->_id;
     }
 
     /**
@@ -27,7 +38,7 @@ class Context {
      */
     public function hasCapability($userId, $capability)
     {
-        return $this->_storage->hasCapability($this->_id, $userId, $capability);
+        return $this->_storage->hasCapability($userId, $capability, $this->_id);
     }
 
     /**
@@ -76,7 +87,7 @@ class Context {
      */
     public function fetchRoles($userId)
     {
-        return $this->_storage->fetchRoles($this->_id, $userId);
+        return $this->_storage->fetchRoles($userId, $this->_id);
     }
 
     /**
@@ -85,6 +96,6 @@ class Context {
      */
     public function fetchCapabilities($userId)
     {
-        return $this->_storage->fetchCapabilities($this->_id, $userId);
+        return $this->_storage->fetchCapabilities($userId, $this->_id);
     }
 }

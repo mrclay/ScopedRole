@@ -7,21 +7,21 @@ interface Storage_IEditor {
      * @param string $title
      * @return int
      */
-    public function createContextType($title);
+    public function createContextType($title = 'default');
 
     /**
      * @param string $title
      * @param int $typeId
-     * @return int
+     * @return Context
      */
-    public function createContext($title, $contextTypeId);
+    public function createContext($title = 'default', $contextTypeId = null);
 
     /**
      * @param string $title
      * @param int $sortOrder
      * @return int
      */
-    public function createRole($title, $sortOrder);
+    public function createRole($title, $sortOrder = null);
 
     /**
      * @param string $title
@@ -29,7 +29,7 @@ interface Storage_IEditor {
      * @param int $sortOrder
      * @return int
      */
-    public function createCapability($title, $isSuitableForRole, $sortOrder);
+    public function createCapability($title, $isSuitableForRole = true, $sortOrder = null);
 
     /**
      * @param int $roleId
@@ -76,4 +76,10 @@ interface Storage_IEditor {
      * @return bool
      */
     public function revokeCapability($capabilityId, $userId, $contextId);
+
+    /**
+     * @param string $title
+     * @return Context|null
+     */
+    public function getContextByTitle($title = 'default');
 }
