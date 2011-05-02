@@ -1,13 +1,8 @@
 DROP TABLE `scrl_role_capability`;
-/* separator */
 DROP TABLE `scrl_capability`;
-/* separator */
 DROP TABLE `scrl_user_role`;
-/* separator */
 DROP TABLE `scrl_context`;
-/* separator */
 DROP TABLE `scrl_user_capability`;
-/* separator */
 DROP TABLE `scrl_role`;
-/* separator */
 DROP TABLE `scrl_contextType`;
+DROP TABLE `scrl_config`;
