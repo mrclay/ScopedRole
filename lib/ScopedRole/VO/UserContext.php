@@ -54,6 +54,7 @@ class VO_UserContext {
                 $caps = $storage->fetchRoleCapabilities($roleId);
                 foreach ($caps as $capId => $capTitle) {
                     $spec['capabilities'][$capId] = $capTitle;
+                    $spec['runtimeCapabilities'][$capId] = $capTitle;
                 }
             } else { // role not in DB, don't give it a numeric key
                 $spec['roles'][$roleTitle] = $roleTitle;

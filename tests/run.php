@@ -126,11 +126,22 @@ function scrl_test_all(ScopedRole\IStorage $storage) {
           1 => 'reader',
           2 => 'writer',
         ), "UserContext: getPersistedRoles");
-    
+
     assertTrue($uc->getPersistedCapabilities() == array (
           2 => 'can_write',
           1 => 'can_read',
-          3 => 'can_manage',
         ), "UserContext: getPersistedCapabilities");
 
+    // user with only runtime roles
+
+    $uc = $storage->fetchUserContext(66, 1, array('reader', 'authenticated_user'), array('edit_settings'));
+
+    assertTrue($uc->getCapabilities() == array (
+          1 => 'can_read',
+          'edit_settings' => 'edit_settings',
+        ), "UserContext: runtime roles only");
+
+    $uc = $uc->getRefreshed($storage);
+
+    assertTrue($uc->getPersistedCapabilities() == array(), "UserContext: nothing persisted");
 }
