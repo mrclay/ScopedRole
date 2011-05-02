@@ -87,7 +87,7 @@ class Context {
      */
     public function fetchRoles($userId)
     {
-        return $this->_storage->fetchRoles($userId, $this->_id);
+        return $this->_storage->fetchUserRoles($userId, $this->_id);
     }
 
     /**
@@ -96,6 +96,6 @@ class Context {
      */
     public function fetchCapabilities($userId)
     {
-        return $this->_storage->fetchCapabilities($userId, $this->_id);
+        return $this->_storage->fetchUserCapabilities($userId, $this->_id);
     }
 }

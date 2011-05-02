@@ -11,17 +11,20 @@ class VO_UserContext {
 
     protected $_userId;
     protected $_contextId;
-    protected $_roles;
-    protected $_capabilities;
+    protected $_roles = array();
+    protected $_capabilities = array();
     protected $_creationTime;
+    protected $_runtimeRoles = array();
+    protected $_runtimeCapabilities = array();
 
-    protected function __construct($userId, $contextId, $roles, $capabilities, $currentTime)
+    protected function __construct(array $spec)
     {
-        $this->_userId = $userId;
-        $this->_contextId = $contextId;
-        $this->_creationTime = $currentTime;
-        $this->_roles = $roles;
-        $this->_capabilities = $capabilities;
+        foreach (get_object_vars($this) as $k => $v) {
+            $specKey = substr($k, 1);
+            if (isset($spec[$specKey])) {
+                $this->{$k} = $spec[$specKey];
+            }
+        }
     }
 
     /**
@@ -32,14 +35,39 @@ class VO_UserContext {
      * @param int $currentTime
      * @return UserContext
      */
-    public static function make(IStorage $storage, $userId, $contextId = 1, $currentTime = null)
+    public static function make(IStorage $storage, array $spec = array())
     {
-        if (! $currentTime) {
-            $currentTime = time();
+
+        $spec = array_merge(array(
+                'userId' => 0,
+                'contextId' => 1,
+                'creationTime' => time(),
+                'runtimeRoles' => array(),
+                'runtimeCapabilities' => array(),
+            ), $spec);
+        $spec['roles'] = $storage->fetchUserRoles($spec['contextId'], $spec['userId']);
+        $spec['capabilities'] = $storage->fetchUserCapabilities($spec['contextId'], $spec['userId']);
+        foreach ($spec['runtimeRoles'] as $roleTitle) {
+            $roleId = $storage->fetchId('role', $roleTitle);
+            if ($roleId) { // known role
+                $spec['roles'][$roleId] = $roleTitle;
+                $caps = $storage->fetchRoleCapabilities($roleId);
+                foreach ($caps as $capId => $capTitle) {
+                    $spec['capabilities'][$capId] = $capTitle;
+                }
+            } else { // role not in DB, don't give it a numeric key
+                $spec['roles'][$roleTitle] = $roleTitle;
+            }
         }
-        $roles = $storage->fetchRoles($contextId, $userId);
-        $capabilities = $storage->fetchCapabilities($contextId, $userId);
-        return new self($userId, $contextId, $roles, $capabilities, $currentTime);
+        foreach ($spec['runtimeCapabilities'] as $capTitle) {
+            $capId = $storage->fetchId('capability', $capTitle);
+            if ($capId) {
+                $spec['capabilities'][$capId] = $capTitle;
+            } else {
+                $spec['capabilities'][$capTitle] = $capTitle;
+            }
+        }
+        return new self($spec);
     }
 
     /**
@@ -48,7 +76,13 @@ class VO_UserContext {
      */
     public function getRefreshed(IStorage $storage)
     {
-        return self::make($storage, $this->_userId, $this->_contextId);
+        $spec = array(
+            'userId' => $this->_userId,
+            'contextId' => $this->_contextId,
+            'runtimeRoles' => $this->_runtimeRoles,
+            'runtimeCapabilities' => $this->_runtimeCapabilities,
+        );
+        return self::make($storage, $spec);
     }
 
     /**
@@ -83,6 +117,38 @@ class VO_UserContext {
     public function getCapabilities()
     {
         return $this->_capabilities;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRuntimeRoles()
+    {
+        return $this->_runtimeRoles;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPersistedRoles()
+    {
+        return \array_diff($this->_roles, $this->_runtimeRoles);
+    }
+
+    /**
+     * @return array
+     */
+    public function getRuntimeCapabilities()
+    {
+        return $this->_runtimeCapabilities;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPersistedCapabilities()
+    {
+        return array_diff($this->_capabilities, $this->_runtimeCapabilities);
     }
 
     /**

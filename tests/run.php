@@ -19,13 +19,24 @@ function scrl_test_all(ScopedRole\IStorage $storage) {
 
     $canReadId = $editor->createCapability('can_read');
     $canWriteId = $editor->createCapability('can_write');
+    $canManageId = $editor->createCapability('can_manage');
+    $canStoptimeId = $editor->createCapability('can_stop_time');
 
-    $readerId = $editor->createRole('reader');
-    $editor->addCapability($readerId, $canReadId);
+    $readerRoleId = $editor->createRole('reader');
+    $editor->addCapability($readerRoleId, $canReadId);
 
-    $writerId = $editor->createRole('writer');
-    $editor->addCapability($writerId, $canReadId);
-    $editor->addCapability($writerId, $canWriteId);
+    $writerRoleId = $editor->createRole('writer');
+    $editor->addCapability($writerRoleId, $canReadId);
+    $editor->addCapability($writerRoleId, $canWriteId);
+
+    $managerRoleId = $editor->createRole('manager');
+    $editor->addCapability($managerRoleId, $canManageId);
+
+    // check role capabilities
+    assertTrue($storage->fetchRoleCapabilities($writerRoleId) == array(
+            1 => 'can_read',
+            2 => 'can_write',
+        ), "Storage: fetchRoleCapabilities");
 
     // create context, grant roles to users
 
@@ -34,9 +45,9 @@ function scrl_test_all(ScopedRole\IStorage $storage) {
 
     $contextTypeId = $editor->createContextType();
     $context = $editor->createContext('default', $contextTypeId);
-    $context->grantRole($readerId, $john);
-    $context->grantRole($writerId, $jane);
-    $context->grantRole($readerId, $jane);
+    $context->grantRole($readerRoleId, $john);
+    $context->grantRole($writerRoleId, $jane);
+    $context->grantRole($readerRoleId, $jane);
 
     assertTrue(  $context->hasCapability($john, 'can_read' ), 'Context: John can read');
     assertTrue(  $context->hasCapability($jane, 'can_read' ), 'Context: Jane can read');
@@ -61,7 +72,7 @@ function scrl_test_all(ScopedRole\IStorage $storage) {
 
     // revoke Jane's writer role
 
-    $context->revokeRole($writerId, $jane);
+    $context->revokeRole($writerRoleId, $jane);
 
     assertTrue(! $context->hasCapability($jane, 'can_write'), "Context: revoked Jane's reader role");
 
@@ -81,11 +92,45 @@ function scrl_test_all(ScopedRole\IStorage $storage) {
     assertTrue($uc->isFresh(), "UserContext: isFresh 1");
     assertTrue(! $uc->isFresh(100, time() + 150), "UserContext: isFresh 2");
 
-    $context->grantRole($writerId, $john);
+    $context->grantRole($writerRoleId, $john);
 
     assertTrue(! $uc->hasRole("writer"), "UserContext: stale data");
 
     $uc = $uc->getRefreshed($storage);
 
     assertTrue($uc->hasRole("writer"), "UserContext: getRefreshed");
+
+    // try giving John a runtime roles and capabilites
+
+    $uc = $storage->fetchUserContext($john, 1, array('manager', 'superhero'), array('can_stop_time', 'can_lift_cars'));
+
+    assertTrue($uc->getCapabilities() == array (
+          2 => 'can_write',
+          1 => 'can_read',
+          3 => 'can_manage',
+          4 => 'can_stop_time',
+          'can_lift_cars' => 'can_lift_cars',
+        ), "UserContext: runtime roles and capabilities");
+
+    $uc = $uc->getRefreshed($storage);
+
+    assertTrue($uc->getCapabilities() == array (
+          2 => 'can_write',
+          1 => 'can_read',
+          3 => 'can_manage',
+          4 => 'can_stop_time',
+          'can_lift_cars' => 'can_lift_cars',
+        ), "UserContext: runtime properties are persisted");
+
+    assertTrue($uc->getPersistedRoles() == array (
+          1 => 'reader',
+          2 => 'writer',
+        ), "UserContext: getPersistedRoles");
+    
+    assertTrue($uc->getPersistedCapabilities() == array (
+          2 => 'can_write',
+          1 => 'can_read',
+          3 => 'can_manage',
+        ), "UserContext: getPersistedCapabilities");
+
 }

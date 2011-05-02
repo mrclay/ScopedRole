@@ -55,7 +55,7 @@ class Storage_NotORM implements IStorage {
      * @param int $userId
      * @return array
      */
-    public function fetchRoles($userId, $contextId = 1)
+    public function fetchUserRoles($userId, $contextId = 1)
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
@@ -80,7 +80,7 @@ class Storage_NotORM implements IStorage {
      * @param int $userId
      * @return array
      */
-    public function fetchCapabilities($userId, $contextId = 1)
+    public function fetchUserCapabilities($userId, $contextId = 1)
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
@@ -104,6 +104,28 @@ class Storage_NotORM implements IStorage {
                       AND ur.id_user = $userId
             ) q1
             ORDER BY sortOrder
+        ";
+        $data = $this->_pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $ret = array();
+        foreach ($data as $row) {
+            $ret[$row['id']] = $row['title'];
+        }
+        return $ret;
+    }
+
+    /**
+     * @param int $roleId
+     * @return array
+     */
+    public function fetchRoleCapabilities($roleId)
+    {
+        $sql = "
+            SELECT c.id, c.title
+            FROM `{$this->_prefix}role_capability` AS rc
+            JOIN `{$this->_prefix}capability` AS c
+                ON (rc.id_capability = c.id)
+            WHERE rc.id_role = " . (int)$roleId . "
+            ORDER BY c.sortOrder
         ";
         $data = $this->_pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         $ret = array();
@@ -152,11 +174,19 @@ class Storage_NotORM implements IStorage {
     /**
      * @param int $userId
      * @param int $contextId
+     * @param array $runtimeRoles
+     * @param array $runtimeCapabilities
      * @return VO_UserContext
      */
-    public function fetchUserContext($userId, $contextId = 1)
+    public function fetchUserContext($userId, $contextId = 1, array $runtimeRoles = array(), array $runtimeCapabilities = array())
     {
-        return VO_UserContext::make($this, $userId, $contextId);
+        $spec = array(
+            'userId' => (int) $userId,
+            'contextId' => (int) $contextId,
+            'runtimeRoles' => $runtimeRoles,
+            'runtimeCapabilities' => $runtimeCapabilities,
+        );
+        return VO_UserContext::make($this, $spec);
     }
 
     /**

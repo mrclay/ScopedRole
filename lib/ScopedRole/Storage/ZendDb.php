@@ -69,7 +69,7 @@ class Storage_ZendDb implements IStorage {
      * @param int $userId
      * @return array
      */
-    public function fetchRoles($userId, $contextId = 1)
+    public function fetchUserRoles($userId, $contextId = 1)
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
@@ -93,7 +93,7 @@ class Storage_ZendDb implements IStorage {
      * @param int $userId
      * @return array
      */
-    public function fetchCapabilities($userId, $contextId = 1)
+    public function fetchUserCapabilities($userId, $contextId = 1)
     {
         $userId    = (int)$userId;
         $contextId = (int)$contextId;
@@ -117,6 +117,27 @@ class Storage_ZendDb implements IStorage {
                       AND ur.id_user = $userId
             ) q1
             ORDER BY sortOrder
+        ");
+        $ret = array();
+        foreach ($data as $row) {
+            $ret[$row['id']] = $row['title'];
+        }
+        return $ret;
+    }
+
+    /**
+     * @param int $roleId
+     * @return array
+     */
+    public function fetchRoleCapabilities($roleId)
+    {
+        $data = $this->_db->fetchAssoc("
+            SELECT c.id, c.title
+            FROM `{$this->_prefix}role_capability` AS rc
+            JOIN `{$this->_prefix}capability` AS c
+                ON (rc.id_capability = c.id)
+            WHERE rc.id_role = " . (int)$roleId . "
+            ORDER BY c.sortOrder
         ");
         $ret = array();
         foreach ($data as $row) {
@@ -164,11 +185,19 @@ class Storage_ZendDb implements IStorage {
     /**
      * @param int $userId
      * @param int $contextId
+     * @param array $runtimeRoles
+     * @param array $runtimeCapabilities
      * @return VO_UserContext
      */
-    public function fetchUserContext($userId, $contextId = 1)
+    public function fetchUserContext($userId, $contextId = 1, array $runtimeRoles = array(), array $runtimeCapabilities = array())
     {
-        return VO_UserContext::make($this, $userId, $contextId);
+        $spec = array(
+            'userId' => $userId,
+            'contextId' => $contextId,
+            'runtimeRoles' => $runtimeRoles,
+            'runtimeCapabilities' => $runtimeCapabilities,
+        );
+        return VO_UserContext::make($this, $spec);
     }
 
     /**
