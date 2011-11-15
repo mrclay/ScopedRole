@@ -1,7 +1,7 @@
 # ScopedRole
 Scoped Role is a PHP5.3 library for managing a [contextual role-based capability control system](http://www.mrclay.org/2011/04/01/designing-a-contextual-role-based-capability-control-system/) with a SQL backend. Currently `PDO` and `Zend_Db`-based backends are available, but there are interfaces available if you want to write your own.
 
-This project aims to be coupled loosely enough to be dropped into any PHP framework. You provide the user IDs, and ScopedRole gives you a simple API to create and manage roles and capabilities.
+This project aims to be coupled loosely enough to be dropped into any PHP framework that uses integer user IDs. ScopedRole gives you a simple API to create and manage contexts, roles, and capabilities; grant roles (and/or individual capabilities) to users within a context; and query the roles/capabilities a user has within a particular context.
 
 ## Requirements
 * PHP 5.3.1
