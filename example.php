@@ -10,7 +10,7 @@
 // set up storage. also available in Zend_Db
 $storage = new ScopedRole\Storage_NotORM(new PDO("..."));
 
-// Sample function to get a UserContext object and propogate it in $_SESSION
+// Sample function to get a VO_UserContext object and propogate it in $_SESSION
 function userCode_getUserContext(ScopedRole\IStorage $storage, $userId, $contextId) {
     $sessKey = 'scrl_userContext' . $contextId;
     if (isset($_SESSION[$sessKey]) && $_SESSION[$sessKey] instanceof ScopedRole\UserContext) {
@@ -25,7 +25,7 @@ function userCode_getUserContext(ScopedRole\IStorage $storage, $userId, $context
     return $_SESSION[$sessKey];
 }
 
-// fetching/querying the UserContext object
+// fetching/querying the VO_UserContext object
 $userId = 123;
 $contextId = 1;
 $userContext = userCode_getUserContext($storage, $userId, $contextId);
