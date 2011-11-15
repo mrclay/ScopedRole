@@ -13,7 +13,7 @@ $storage = new ScopedRole\Storage_NotORM(new PDO("..."));
 $contextId = 1; // the scope in which users have role/capability relationships
 
 // storing UserContext in a session...
-$sessKey = 'scrl_userContext';
+$sessKey = 'scrl_userContext' . $contextId;
 if (isset($_SESSION[$sessKey]) && $_SESSION[$sessKey] instanceof ScopedRole\UserContext) {
     $uc = $_SESSION[$sessKey]; /* @var $uc ScopedRole\UserContext */
     if (! $uc->isFresh($ttl)) {
@@ -21,7 +21,7 @@ if (isset($_SESSION[$sessKey]) && $_SESSION[$sessKey] instanceof ScopedRole\User
         $_SESSION[$sessKey] = $uc;
     }
 } else {
-    $_SESSION[$sessKey] = $storage->fetchUserContext($userId);
+    $_SESSION[$sessKey] = $storage->fetchUserContext($userId, $contextId);
 }
 
 // using it to get roles
